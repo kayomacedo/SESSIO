@@ -21,20 +21,23 @@ REFRESH_INTERVAL = 60 * 20    # renova a cada 20 min
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(ROOT)
 
+# Configurações
+load_dotenv()
+
+email = os.getenv("EMAIL")
+password = os.getenv("PASSWORD")
+home_url = os.getenv("HOME_URL")
+login_url = os.getenv("LOGIN_URL")
 
 
 
 def manager_loop():
     last_refresh = 0
     control = False
-    load_dotenv()
-
-    email = os.getenv("EMAIL")
-    password = os.getenv("PASSWORD")
-
+  
     with sync_playwright() as p:
         config = load_config()
-        home_url = config["home_url"]
+      
         browser = p.chromium.launch(headless=True)
 
         # carregar state.json se existir
@@ -76,7 +79,8 @@ def manager_loop():
     
     if control:
         #Faz o login
-        login(email,password)
+        #login(email,password)
+        print("Precisa fazer login...")
         manager_loop()
 
 if __name__ == "__main__":

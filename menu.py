@@ -9,12 +9,9 @@ from bots.check_login import check_login
 from bots.make_login import login
 from bots.make_logout import logout
 from session_manager.manager import manager_loop
-from database.config_db import save_config, load_config, create_config_table
+from bots.open_browser import open as open_nav
 
 console = Console()
-
-# Criar tabela ao iniciar programa
-create_config_table()
 
 
 def header():
@@ -35,7 +32,7 @@ def mostrar_menu():
             "\n[cyan]1)[/cyan] 🔍 Verificar status da sessão"
             "\n[cyan]2)[/cyan] 🔐 Fazer Login"
             "\n[cyan]3)[/cyan] 🧹 Fazer Logoff"
-            "\n[cyan]4)[/cyan] ⚙️ Configurar URLs"
+            "\n[cyan]4)[/cyan] ⚙️ Abrir Navegador"
             "\n[cyan]5)[/cyan] 🪐 Abrir Session Manager"
             "\n[cyan]6)[/cyan] ❌ Sair",
             border_style="magenta",
@@ -92,22 +89,10 @@ def run_menu():
             # CONFIGURAÇÃO
             # --------------------------------------
             case "4":
-                console.print("\n[bold cyan]⚙️ CONFIGURAÇÃO DO SESSIO[/bold cyan]")
+                console.print("\n[bold cyan] Abrir Navegador[/bold cyan]")
+                open_nav()
 
-                while True:
-                    login_url = Prompt.ask("[cyan]🔗 URL da página de login[/cyan]").strip()
-                    if login_url.startswith("http"):
-                        break
-                    console.print("[red]❌ Digite uma URL completa (http/https).[/red]")
 
-                while True:
-                    home_url = Prompt.ask("[cyan]🏠 URL da Home/Dashboard[/cyan]").strip()
-                    if home_url.startswith("http"):
-                        break
-                    console.print("[red]❌ Digite uma URL completa (http/https).[/red]")
-
-                save_config(login_url, home_url)
-                console.print("\n[bold green]✔ Configurações salvas com sucesso![/bold green]\n")
 
             # --------------------------------------
             # RODAR MANAGER EM OUTRO TERMINAL

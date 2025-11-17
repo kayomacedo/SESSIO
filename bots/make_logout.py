@@ -1,11 +1,15 @@
+import os
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 import time
-from database.config_db import load_config
 
 def logout():
     with sync_playwright() as p:
-        config = load_config()
-        login_url = config["login_url"]
+        # Configurações
+        load_dotenv()
+        home_url = os.getenv("HOME_URL")
+        login_url = os.getenv("LOGIN_URL")
+
         browser = p.chromium.launch(headless=True, slow_mo=50)
         context = browser.new_context()
 

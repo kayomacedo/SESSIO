@@ -1,15 +1,18 @@
 import os
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
-from database.config_db import load_config
 from bots import check_login
 
 STATE_PATH = "session_manager/state.json"
 
 
 def login(email, password):
-    config = load_config()
-    login_url = config["login_url"]
-    #home_url = config["home_url"]
+    # Configurações
+    load_dotenv()
+
+    home_url = os.getenv("HOME_URL")
+    login_url = os.getenv("LOGIN_URL")
+
     
     if not email or not password:
         raise ValueError("❌ Email ou senha não encontrados!")

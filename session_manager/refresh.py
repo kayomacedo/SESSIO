@@ -1,9 +1,17 @@
+import os
+from dotenv import load_dotenv
 from playwright.sync_api import TimeoutError
-from database.config_db import load_config
+
+# Configurações
+load_dotenv()
+
+
+home_url = os.getenv("HOME_URL")
+login_url = os.getenv("LOGIN_URL")
+
 
 def refresh_session(context, page):
-    config = load_config()
-    home_url = config["home_url"]
+
     """
     RENOVA TOKENS DE SESSÃO SEM DESLOGAR
     Funciona para 90% dos sites que expiram cookies.

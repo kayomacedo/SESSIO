@@ -1,15 +1,19 @@
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 import os
-from database.config_db import load_config
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATE_FILE = os.path.join(BASE_DIR, "session_manager", "state.json")
 
+# Configurações
+load_dotenv()
+home_url = os.getenv("HOME_URL")
+login_url = os.getenv("LOGIN_URL")
+
 
 
 def is_logged_in(page):
-    config = load_config()
-    home_url = config["home_url"]
     link_dashboard = home_url
     if page.url == link_dashboard:
         return True
@@ -18,8 +22,6 @@ def is_logged_in(page):
     
 
 def check_login(headless=False):
-    config = load_config()
-    home_url = config["home_url"]
     
 
     with sync_playwright() as p:
