@@ -1,5 +1,6 @@
 from getpass import getpass
 import os
+import subprocess
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
@@ -25,6 +26,9 @@ def header():
     )
 
 
+# ============================================================
+#   MENU
+# ============================================================
 def mostrar_menu():
     console.print(
         Panel.fit(
@@ -32,13 +36,70 @@ def mostrar_menu():
             "\n[cyan]1)[/cyan] 🔍 Verificar status da sessão"
             "\n[cyan]2)[/cyan] 🔐 Fazer Login"
             "\n[cyan]3)[/cyan] 🧹 Fazer Logoff"
-            "\n[cyan]4)[/cyan] ⚙️ Abrir Navegador"
+            "\n[cyan]4)[/cyan] 🌐 Abrir Navegador"
             "\n[cyan]5)[/cyan] 🪐 Abrir Session Manager"
-            "\n[cyan]6)[/cyan] ❌ Sair",
+            "\n[cyan]6)[/cyan] 🔑 Abrir Login Inicial (zera sessão)"
+            "\n[cyan]7)[/cyan] ❌ Sair",
             border_style="magenta",
             padding=(1, 2),
         )
     )
+
+def run_manager():
+    # Python do venv (Windows ou Linux)
+    venv_python = (
+        os.path.join("venv", "Scripts", "python.exe")
+        if os.name == "nt"
+        else os.path.join("venv", "bin", "python")
+    )
+
+    manager_script = os.path.join("session_manager", "manager.py")
+
+    if os.name == "nt":
+        subprocess.Popen(f'start cmd /k "{venv_python} {manager_script}"', shell=True)
+    else:
+        subprocess.Popen([venv_python, manager_script])
+
+
+def run_nav(headless=False):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    # Python sem terminal (Windows) / Python normal (Linux)
+    venv_python = (
+        os.path.join(BASE_DIR, "venv", "Scripts", "pythonw.exe")
+        if os.name == "nt"
+        else os.path.join(BASE_DIR, "venv", "bin", "python")
+    )
+
+    nav_script = os.path.join(BASE_DIR, "bots", "open_browser.py")
+
+    headless_arg = "false" if not headless else "true"
+
+    if os.name == "nt":
+        subprocess.Popen([venv_python, nav_script, headless_arg], shell=False)
+    else:
+        subprocess.Popen([venv_python, nav_script, headless_arg])
+
+
+# ============================================================
+#   FIRST LOGIN (manual)
+# ============================================================
+def run_first_login():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    venv_python = (
+        os.path.join(BASE_DIR, "venv", "Scripts", "python.exe")
+        if os.name == "nt" else os.path.join(BASE_DIR, "venv", "bin", "python")
+    )
+
+    script = os.path.join(BASE_DIR, "_first_login.py")
+
+    if os.name == "nt":
+        subprocess.Popen(f'start cmd /k "{venv_python} {script}"', shell=True)
+    else:
+        subprocess.Popen([venv_python, script])
+
+
 
 
 def run_menu():
@@ -46,71 +107,63 @@ def run_menu():
 
     while True:
         mostrar_menu()
-        opcao = Prompt.ask("\n[bold yellow]👉 Escolha uma opção[/bold yellow]")
 
-        match opcao.lower():
-            # --------------------------------------
-            # VERIFICAR STATUS
-            # --------------------------------------
+        opcao = Prompt.ask(
+            "\n[bold yellow]👉 Escolha uma opção[/bold yellow]",
+            choices=["1", "2", "3", "4", "5", "6", "7"],
+            show_choices=False
+        )
+
+        match opcao:
+
             case "1":
                 console.print("\n[cyan]⏳ Verificando sessão...[/cyan]")
                 logado = check_login()
+                console.print(
+                    "\n[bold green]🟢 Sessão ativa![/bold green]\n"
+                    if logado else
+                    "\n[bold red]🔴 Sessão inativa![/bold red]\n"
+                )
 
-                if logado:
-                    console.print("\n[bold green]🟢 A sessão está ativa![/bold green]\n")
-                else:
-                    console.print("\n[bold red]🔴 A sessão NÃO está ativa![/bold red]\n")
-
-            # --------------------------------------
-            # LOGIN
-            # --------------------------------------
             case "2":
                 if check_login():
-                    console.print("\n[bold green]🟢 O usuário já está logado![/bold green]\n")
+                    console.print("\n[bold green]🟢 Você já está logado![/bold green]\n")
                     continue
 
-                email = Prompt.ask("[cyan]📧 Digite seu email[/cyan]")
-                password = getpass("🔑 Digite sua senha: ")
-                console.print("\n[cyan]🚀 Realizando login...[/cyan]\n")
+                console.print("\n[cyan]🔐 Iniciando login...[/cyan]")
+                email = Prompt.ask("[cyan]📧 Email[/cyan]")
+                password = getpass("🔑 Senha: ")
+
+                console.print("\n[cyan]🚀 Efetuando login...[/cyan]")
                 login(email, password)
 
-            # --------------------------------------
-            # LOGOUT
-            # --------------------------------------
             case "3":
-                console.print("[cyan]🧹 Limpando sessão atual...[/cyan]")
+                console.print("\n[cyan]🧹 Limpando sessão...[/cyan]")
                 ok = logout()
-                if ok:
-                    console.print("[bold green]✔ Sessão removida com sucesso![/bold green]\n")
-                else:
-                    console.print("[bold red]❌ Nenhuma sessão encontrada.\n[/bold red]")
+                console.print(
+                    "[bold green]✔ Sessão encerrada![/bold green]\n"
+                    if ok else
+                    "[bold red]❌ Não havia sessão ativa.\n[/bold red]"
+                )
 
-            # --------------------------------------
-            # CONFIGURAÇÃO
-            # --------------------------------------
             case "4":
-                console.print("\n[bold cyan] Abrir Navegador[/bold cyan]")
-                open_nav()
+                console.print("\n[bold cyan]🌐 Abrindo navegador...[/bold cyan]")
+                run_nav()
 
-
-
-            # --------------------------------------
-            # RODAR MANAGER EM OUTRO TERMINAL
-            # --------------------------------------
             case "5":
-                console.print("\n[bold green]🚀 Abrindo Session Manager em outro terminal...[/bold green]\n")
-                os.system('start cmd /k "venv\\Scripts\\python session_manager\\manager.py"')
-                break
+                console.print("\n[bold green]🚀 Abrindo Session Manager...[/bold green]\n")
+                run_manager()
+              
 
-            # --------------------------------------
-            # SAIR
-            # --------------------------------------
             case "6":
-                console.print("\n[bold red]👋 Encerrando Sessio... Até logo![/bold red]")
+                console.print("\n[bold magenta]🔑 Abrindo tela de primeiro login...[/bold magenta]\n")
+                run_first_login()
+           
+
+            case "7":
+                console.print("\n[bold red]👋 Encerrando Sessio... Até breve![/bold red]")
                 break
 
-            case _:
-                console.print("[bold red]❌ Opção inválida! Tente novamente.\n[/bold red]")
 
 
 run_menu()

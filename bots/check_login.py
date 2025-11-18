@@ -6,16 +6,17 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 STATE_FILE = os.path.join(BASE_DIR, "session_manager", "state.json")
 
+
+
 # Configurações
 load_dotenv()
 home_url = os.getenv("HOME_URL")
 login_url = os.getenv("LOGIN_URL")
 
 
-
 def is_logged_in(page):
-    link_dashboard = home_url
-    if page.url == link_dashboard:
+
+    if page.url == home_url:
         return True
     else:
         return False
@@ -36,13 +37,14 @@ def check_login(headless=False):
 
         if is_logged_in(page):
             #print("✅ O usuário está logado!")
-            
+            browser.close()
             return True
         else:
             #print("❌ O usuário NÃO está logado!")
+            browser.close()
             return False
         
-    browser.close()
+    
 
 if __name__ == "__main__":
     logado = check_login()

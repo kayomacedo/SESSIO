@@ -3,6 +3,15 @@ from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 import time
 
+import os
+
+#Configurações para cross-plataform
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+STATE_FILE = os.path.join(BASE_DIR, "session_manager", "state.json")
+
+
+
 def main():
     with sync_playwright() as p:
         # Configurações
@@ -21,8 +30,7 @@ def main():
         print("===========================\n")
 
         input("Pressione ENTER quando estiver logado...")
-
-        context.storage_state(path="session_manager/state.json")
+        context.storage_state(path=STATE_FILE)
         print("\nSessão inicial salva com sucesso!")
 
         browser.close()

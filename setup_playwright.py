@@ -2,9 +2,11 @@ import os
 import subprocess
 import venv
 
-VENV_DIR = "venv"
-REQ_FILE = "requirements.txt"
-ENV_FILE = ".env"
+# Caminhos cross-platform
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+VENV_DIR = os.path.join(BASE_DIR, "venv")
+REQ_FILE = os.path.join(BASE_DIR, "requirements.txt")
+ENV_FILE = os.path.join(BASE_DIR, ".env")
 
 DEFAULT_ENV_CONTENT = """EMAIL=
 PASSWORD=
@@ -20,9 +22,9 @@ def create_venv():
 
 def get_python():
     return (
-        os.path.join(VENV_DIR, "Scripts", "python.exe")
+        os.path.join(VENV_DIR, "Scripts", "python.exe")  # Windows
         if os.name == "nt"
-        else os.path.join(VENV_DIR, "bin", "python")
+        else os.path.join(VENV_DIR, "bin", "python")     # Linux / Mac
     )
 
 def install_requirements():
